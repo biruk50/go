@@ -4,6 +4,7 @@ import (
     "fmt"
 	//"time"
     //"slices"
+    //"crypto/sha256"
 
 )
 
@@ -48,9 +49,20 @@ func main() {
     nums = append(nums,jj...)
     fmt.Println(nums)
     */
+    maped:=make(map[int]int)
+    maped[1] = 18
+    maped[2] = 2
+    key,value:= maped[1]
+    fmt.Println(key,value)
 
+
+
+    /*
     var m = map[string]int{"a":1,"b":2}
     fmt.Println(m["c"])
 
+    h := sha256.Sum256([]byte("xv"))
+    fmt.Println(h)
+    */
 }
  

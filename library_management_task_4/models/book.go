@@ -4,5 +4,6 @@ type Book struct {
 	Id int 
 	Title string 
 	Author string 
-	Status string//available or borrowed
+	Status string//available or borrowed or reserved
+	
 }

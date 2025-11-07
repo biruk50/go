@@ -1,13 +1,20 @@
 package main
 
 import (
-  "task_manager/router"
+	"log"
+	"task_manager/data"
+	"task_manager/router"
 )
 
 func main() {
-	router := router.SetupRouter()
+	if err := data.InitMongo(); err != nil {
+		log.Fatalf("Mongo connection failed: %v", err)
+	}
+	defer data.CloseMongo()
 
-	router.Run(":8080")
-  
+	r := router.SetupRouter()
+	if err := r.Run(":8080"); err != nil {
+		log.Fatal(err)
+	}
 }
 

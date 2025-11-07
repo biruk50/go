@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
 )
 
 // Home route.
@@ -16,7 +18,12 @@ func Home(ctx *gin.Context) {
 
 // Get all tasks.
 func GetAllTasks(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{"tasks": data.GetAllTasks()})
+	tasks,err := data.GetAllTasks()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"tasks": tasks })
 }
 
 // Get task by ID.
@@ -38,9 +45,12 @@ func CreateTask(ctx *gin.Context) {
 		return
 	}
 
-	// Validate required fields
-	if newTask.Id == "" || newTask.Title == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": "id and title are required"})
+	if newTask.ID.IsZero() {
+		newTask.ID = primitive.NewObjectID()
+	}
+
+	if newTask.Title == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "title is required"})
 		return
 	}
 
@@ -49,8 +59,15 @@ func CreateTask(ctx *gin.Context) {
 		newTask.DueDate = time.Now().Add(24 * time.Hour)
 	}
 
-	data.AddTask(newTask)
-	ctx.JSON(http.StatusCreated, gin.H{"message": "Task created"})
+	if err := data.AddTask(newTask); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{
+		"message": "Task created",
+		"task":    newTask,
+	})
 }
 
 // Update an existing task.

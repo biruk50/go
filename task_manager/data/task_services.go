@@ -133,13 +133,12 @@ func DeleteTask(id string) error {
 	defer cancel()
 
 	res, err := collection.DeleteOne(ctx, bson.M{"_id": objID})
+	
 	if err != nil { 
 		log.Printf("Error deleting task: %v", err)
 		return err}
-	if res.DeletedCount == 0 {
-		log.Printf("Task not found with ID: %s", id)
+	log.Printf("Delete result: %+v", res)
+	
 
-		return errors.New("task not found")
-	}
 	return nil
 }

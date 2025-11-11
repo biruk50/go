@@ -2,8 +2,8 @@ package main
 
 import (
 	"log"
-	"task_manager/data"
-	"task_manager/router"
+	"task_manager_auth/data"
+	"task_manager_auth/router"
 )
 
 func main() {

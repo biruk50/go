@@ -3,55 +3,25 @@ package data
 import (
 	"context"
 	"errors"
-	"log"
-	"os"
-	"task_manager/models"
+	"task_manager_auth/models"
 	"time"
-
-	"github.com/joho/godotenv"
+	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
-  collection *mongo.Collection
-  client *mongo.Client
-  ctx=context.Background()
+	ctx=context.Background()
 )
-
-
-
-func InitMongo() error {
-	if err := godotenv.Load(); err != nil {
-		return errors.New("no .env file found")
-	}
-
-	uri := os.Getenv("MONGODB_URL")
-	
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
-
-	if err != nil { return err }
-
-	collection = client.Database("task_manager").Collection("tasks")
-	if collection == nil { return errors.New("failed to connect to collection") }
-	return nil
-
-}
-
-func CloseMongo(){
-	if client == nil { return  }
-	client.Disconnect(ctx) 
-}
 
 // GetAllTasks returns all tasks.
 func GetAllTasks() ([]models.Task, error) {
-	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	cursor,err := collection.Find(ctx, bson.D{})
+	cursor,err := TasksColl.Find(ctx, bson.D{})
 	if err != nil { return nil, err }
 
 	var tasks []models.Task
@@ -68,20 +38,18 @@ func GetTaskByID(id string) (*models.Task, error) {
 	defer cancel()
 
 	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, errors.New("invalid ID format")
-	}
+	if err != nil {return nil, errors.New("invalid ID format")}
 
 
 	var task models.Task
 
-	err = collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&task)
+	err = TasksColl.FindOne(ctx, bson.M{"_id": objID}).Decode(&task)
+
 	if err == mongo.ErrNoDocuments {
 		return nil, errors.New("task not found")
 	}
-	if err != nil {
-		return nil, err
-	}
+	if err != nil { return nil, err }
+
 	return &task, nil
 }
 
@@ -89,15 +57,13 @@ func AddTask(task models.Task) error {
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
-	_, err := collection.InsertOne(ctx, task)
+	_, err := TasksColl.InsertOne(ctx, task)
 	return err
 }
 
 func UpdateTask(id string, updated models.Task) error {
 	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return errors.New("invalid ID format")
-	}
+	if err != nil { return errors.New("invalid ID format") }
 
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -111,10 +77,9 @@ func UpdateTask(id string, updated models.Task) error {
 		},
 	}
 
-	res, err := collection.UpdateOne(ctx, bson.M{"_id": objID}, update)
-	if err != nil {
-		return err
-	}
+	res, err := TasksColl.UpdateOne(ctx, bson.M{"_id": objID}, update)
+	if err != nil { return err }
+
 	if res.MatchedCount == 0 {
 		return errors.New("task not found")
 	}
@@ -124,21 +89,15 @@ func UpdateTask(id string, updated models.Task) error {
 // DeleteTask removes a task by its ID.
 func DeleteTask(id string) error {
 	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		log.Println("format")
-		return errors.New("invalid ID format")
-	}
+	if err != nil { return errors.New("invalid ID format") }
 
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
-	res, err := collection.DeleteOne(ctx, bson.M{"_id": objID})
+	res, err := TasksColl.DeleteOne(ctx, bson.M{"_id": objID})
 	
-	if err != nil { 
-		log.Printf("Error deleting task: %v", err)
-		return err}
-	log.Printf("Delete result: %+v", res)
-	
+	if err != nil { return err }
 
+	log.Printf("Delete result: %+v", res)
 	return nil
 }

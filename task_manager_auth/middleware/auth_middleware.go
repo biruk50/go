@@ -38,6 +38,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(t *jwt.Token) (interface{}, error) {
 			return []byte(secret), nil
 		}, jwt.WithLeeway(5*time.Second))
+
 		if err != nil || !token.Valid {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token", "detail": err.Error()})
 			return
@@ -47,6 +48,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token claims"})
 			return
 		}
+		
 		// store claims in context
 		c.Set("user_id", claims.UserID)
 		c.Set("username", claims.Username)

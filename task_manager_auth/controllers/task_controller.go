@@ -48,11 +48,13 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
 	user, err := data.AuthenticateUser(req.Username, req.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		return
 	}
+	
 	// create token
 	secret := data.GetJWTSecret()
 	claims := middleware.Claims{

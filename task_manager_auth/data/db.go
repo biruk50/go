@@ -9,7 +9,6 @@ import (
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 // Global DB variables accessible to other data files
@@ -23,33 +22,21 @@ var (
 
 // InitMongo initializes MongoDB client and sets up collections
 func InitMongo() error {
-	// Load env file if present
 	_ = godotenv.Load()
 
 	mongoURI := os.Getenv("MONGODB_URL")
-	if mongoURI == "" {
-		return errors.New("MONGODB_URL not set")
-	}
+	if mongoURI == "" { return errors.New("MONGODB_URL not set")}
 
 	JWTSecretKey = os.Getenv("JWT_SECRET")
-	if JWTSecretKey == "" {
-		return errors.New("JWT_SECRET not set")
-	}
 
 	dbName := getEnv("MONGO_DB", "taskdb")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	var err error
-	Client, err = mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
-	if err != nil {
-		return err
-	}
+	Client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
+	if err != nil { return err }
 
-	if err = Client.Ping(ctx, readpref.Primary()); err != nil {
-		return err
-	}
 
 	DB = Client.Database(dbName)
 	UsersColl = DB.Collection(getEnv("MONGO_USERS_COLLECTION", "users"))
@@ -60,9 +47,8 @@ func InitMongo() error {
 
 // CloseMongo closes the MongoDB client connection
 func CloseMongo() {
-	if Client == nil {
-		return
-	}
+	if Client == nil { return }
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	_ = Client.Disconnect(ctx)

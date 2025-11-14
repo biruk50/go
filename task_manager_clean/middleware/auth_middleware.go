@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"task_manager_auth/data"
+	"task_manager_clean/data"
 
 	"github.com/golang-jwt/jwt/v5"
 )

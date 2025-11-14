@@ -2,9 +2,9 @@
 
 import (
 	"net/http"
-	"task_manager_auth/data"
-	"task_manager_auth/models"
-	"task_manager_auth/middleware"
+	"task_manager_clean/data"
+	"task_manager_clean/models"
+	"task_manager_clean/middleware"
 
 	"time"
 

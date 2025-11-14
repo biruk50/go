@@ -11,7 +11,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// claims structure
 type Claims struct {
 	UserID   string `json:"user_id"`
 	Username string `json:"username"`
@@ -55,9 +54,8 @@ func AuthMiddleware() gin.HandlerFunc {
 		c.Set("role", claims.Role)
 		c.Next()
 	}
-}
+} 
 
-// AdminOnly middleware ensures role == admin
 func AdminOnly() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		roleVal, exists := c.Get("role")

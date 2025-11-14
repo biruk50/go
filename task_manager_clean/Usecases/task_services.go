@@ -1,9 +1,9 @@
-package data
+package Usecases
 
 import (
 	"context"
 	"errors"
-	"task_manager_auth/models"
+	"task_manager_clean/models"
 	"time"
 	"log"
 

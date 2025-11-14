@@ -1,4 +1,4 @@
-module task_manager_auth
+module task_manager_clean
 
 go 1.25.3
 

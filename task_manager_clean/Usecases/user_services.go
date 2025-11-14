@@ -1,4 +1,4 @@
-package data
+package Usecases
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"task_manager_auth/models"
+	"task_manager_clean/models"
 
 	"golang.org/x/crypto/bcrypt"
 	"go.mongodb.org/mongo-driver/bson"

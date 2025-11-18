@@ -2,19 +2,33 @@ package main
 
 import (
 	"log"
-	"task_manager_auth/data"
-	"task_manager_auth/router"
+	"task_manager_clean/Delivery/routers"
+	"task_manager_clean/Infrastructure"
+	"task_manager_clean/Repositories"
+	"task_manager_clean/Usecases"
 )
 
 func main() {
-	if err := data.InitMongo(); err != nil {
-		log.Fatalf("Mongo connection failed: %v", err)
+	// init DB
+	if err := Infrastructure.InitMongo(); err != nil {
+		log.Fatalf("mongo init: %v", err)
 	}
-	defer data.CloseMongo()
+	defer Infrastructure.CloseMongo()
 
-	r := router.SetupRouter()
-	if err := r.Run(":8080"); err != nil {
-		log.Fatal(err)
+	// create repository implementations
+	userRepo := Repositories.NewMongoUserRepository(Infrastructure.GetDB())
+	taskRepo := Repositories.NewMongoTaskRepository(Infrastructure.GetDB())
+
+
+	userUC := Usecases.NewUserUsecase(userRepo, Infrastructure.NewPasswordService(), Infrastructure.NewJWTService())
+	taskUC := Usecases.NewTaskUsecase(taskRepo)
+
+	// create router with controllers wired to usecases
+	r := routers.SetupRouter(userUC, taskUC)
+
+	port := Infrastructure.GetEnv("PORT", "8080")
+
+	if err := r.Run(":" + port); err != nil {
+		log.Fatalf("server run: %v", err)
 	}
 }
-

@@ -2,7 +2,6 @@ package repositories_integration
 
 import (
 	"context"
-	"os"
 	"testing"
 	"time"
 
@@ -20,8 +19,11 @@ type UserRepoIntegrationSuite struct {
 }
 
 func (s *UserRepoIntegrationSuite) SetupSuite() {
-	if os.Getenv("MONGODB_URL") == "" {
-		s.T().Skip("MONGODB_URL not set — skipping integration tests")
+	Infrastructure.LoadEnv()
+
+	uri := Infrastructure.GetEnv("MONGODB_URL", "")
+	if uri == "" {
+		s.T().Skip("MONGODB_URL not set – skipping integration test")
 	}
 
 	err := Infrastructure.InitMongo()

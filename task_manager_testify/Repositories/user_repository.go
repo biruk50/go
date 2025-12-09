@@ -3,10 +3,11 @@ package Repositories
 import (
 	"context"
 	"errors"
-	"time"
 	"task_manager_testify/Domain"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -28,8 +29,15 @@ func NewMongoUserRepository(db *mongo.Database) UserRepository {
 func (r *mongoUserRepo) Create(u *Domain.User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	_, err := r.coll.InsertOne(ctx, u)
-	return err
+	res, err := r.coll.InsertOne(ctx, u)
+	if err != nil {
+		return err
+	}
+	// try to set the generated ObjectID back onto the user
+	if oid, ok := res.InsertedID.(primitive.ObjectID); ok {
+		u.ID = oid
+	}
+	return nil
 }
 
 func (r *mongoUserRepo) FindByUsername(username string) (*Domain.User, error) {

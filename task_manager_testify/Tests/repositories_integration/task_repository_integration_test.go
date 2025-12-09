@@ -2,7 +2,6 @@ package repositories_integration
 
 import (
 	"context"
-	"os"
 	"testing"
 	"time"
 
@@ -14,7 +13,9 @@ import (
 )
 
 func TestTaskRepositoryIntegration(t *testing.T) {
-	uri := os.Getenv("MONGODB_URL")
+	Infrastructure.LoadEnv()
+
+	uri := Infrastructure.GetEnv("MONGODB_URL", "")
 	if uri == "" {
 		t.Skip("MONGODB_URL not set – skipping integration test")
 	}

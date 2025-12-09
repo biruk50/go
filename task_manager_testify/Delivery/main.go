@@ -2,10 +2,10 @@ package main
 
 import (
 	"log"
-	"task_manager_clean/Delivery/routers"
-	"task_manager_clean/Infrastructure"
-	"task_manager_clean/Repositories"
-	"task_manager_clean/Usecases"
+	"task_manager_testify/Delivery/routers"
+	"task_manager_testify/Infrastructure"
+	"task_manager_testify/Repositories"
+	"task_manager_testify/Usecases"
 )
 
 func main() {

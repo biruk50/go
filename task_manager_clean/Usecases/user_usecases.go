@@ -64,9 +64,9 @@ func (u *userUsecase) Login(username, password string) (string, error) {
 	token, err := u.jwt.Generate(user.ID.Hex(), user.Username, user.Role, 24*time.Hour)
 	if err != nil {
 		return "", err
-	}
+	}  
 	return token, nil
-}
+} 
 
 func (u *userUsecase) Promote(username string) error {
 	return u.userRepo.Promote(username)

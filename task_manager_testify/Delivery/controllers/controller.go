@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"net/http"
-	"task_manager_clean/Domain"
-	"task_manager_clean/Usecases"
-	"task_manager_clean/Infrastructure"
+	"task_manager_testify/Domain"
+	"task_manager_testify/Infrastructure"
+	"task_manager_testify/Usecases"
 
 	"github.com/gin-gonic/gin"
 )
@@ -42,7 +42,6 @@ func (ctr *Controller) Register(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"username": user.Username, "role": user.Role, "created_at": user.CreatedAt})
 }
 
-
 func (ctr *Controller) Login(c *gin.Context) {
 	var payload struct {
 		Username string `json:"username"`
@@ -50,6 +49,11 @@ func (ctr *Controller) Login(c *gin.Context) {
 	}
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	// validate required fields
+	if payload.Username == "" || payload.Password == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "username and password required"})
 		return
 	}
 	token, err := ctr.UserUC.Login(payload.Username, payload.Password)
@@ -137,4 +141,3 @@ func (ctr *Controller) DeleteTask(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "deleted"})
 }
-

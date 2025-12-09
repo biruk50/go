@@ -3,9 +3,9 @@ package Usecases
 import (
 	"errors"
 	"time"
-	"task_manager_clean/Domain"
-	"task_manager_clean/Repositories"
-	"task_manager_clean/Infrastructure"
+	"task_manager_testify/Domain"
+	"task_manager_testify/Repositories"
+	"task_manager_testify/Infrastructure"
 )
 
 type UserUsecase interface {

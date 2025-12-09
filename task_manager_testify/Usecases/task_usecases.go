@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"task_manager_clean/Domain"
-	"task_manager_clean/Repositories"
+	"task_manager_testify/Domain"
+	"task_manager_testify/Repositories"
 )
 
 type TaskUsecase interface {

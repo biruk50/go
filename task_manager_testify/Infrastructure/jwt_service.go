@@ -21,9 +21,14 @@ func GetJWTSecret() string {
 	return GetEnv("JWT_SECRET", "")
 }
 
-func NewJWTService() JWTService {
-	secret := GetJWTSecret()
-	return &jwtService{secret: secret}
+func NewJWTService(secret ...string) JWTService {
+	var s string
+	if len(secret) > 0 {
+		s = secret[0]
+	} else {
+		s = GetJWTSecret()
+	}
+	return &jwtService{secret: s}
 }
 
 func (j *jwtService) Generate(userID, username, role string, ttl time.Duration) (string, error) {

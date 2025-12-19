@@ -1,11 +1,11 @@
 package main
 
 import (
-	"log"
 	"FMS/Delivery/routers"
 	"FMS/Infrastructure"
 	"FMS/Repositories"
 	"FMS/Usecases"
+	"log"
 )
 
 func main() {
@@ -17,14 +17,18 @@ func main() {
 
 	// create repository implementations
 	userRepo := Repositories.NewMongoUserRepository(Infrastructure.GetDB())
-	taskRepo := Repositories.NewMongoTaskRepository(Infrastructure.GetDB())
-
+	budgetRepo := Repositories.NewMongoBudgetRepository(Infrastructure.GetDB())
+	cashRepo := Repositories.NewMongoCashRequestRepository(Infrastructure.GetDB())
+	expenseRepo := Repositories.NewMongoExpenseRepository(Infrastructure.GetDB())
 
 	userUC := Usecases.NewUserUsecase(userRepo, Infrastructure.NewPasswordService(), Infrastructure.NewJWTService())
-	taskUC := Usecases.NewTaskUsecase(taskRepo)
+	budgetUC := Usecases.NewBudgetUsecase(budgetRepo)
+	cashUC := Usecases.NewCashRequestUsecase(cashRepo)
+	expenseUC := Usecases.NewExpenseUsecase(expenseRepo)
+	reportUC := Usecases.NewReportUsecase(budgetRepo, cashRepo, expenseRepo)
 
 	// create router with controllers wired to usecases
-	r := routers.SetupRouter(userUC, taskUC)
+	r := routers.SetupRouter(userUC, budgetUC, cashUC, expenseUC, reportUC)
 
 	port := Infrastructure.GetEnv("PORT", "8080")
 

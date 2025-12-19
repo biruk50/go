@@ -14,7 +14,7 @@ var client *mongo.Client
 var db *mongo.Database
 
 func InitMongo() error {
-	_=LoadEnv()
+	_ = LoadEnv()
 	uri := GetEnv("MONGODB_URL", "")
 	if uri == "" {
 		return errors.New("MONGODB_URL not set")
@@ -40,7 +40,9 @@ func GetDB() *mongo.Database {
 }
 
 func CloseMongo() {
-	if client == nil { return }
+	if client == nil {
+		return
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	_ = client.Disconnect(ctx)

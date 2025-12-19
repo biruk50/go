@@ -2,10 +2,10 @@ package Usecases
 
 import (
 	"errors"
-	"time"
 	"task_manager_clean/Domain"
-	"task_manager_clean/Repositories"
 	"task_manager_clean/Infrastructure"
+	"task_manager_clean/Repositories"
+	"time"
 )
 
 type UserUsecase interface {
@@ -33,8 +33,10 @@ func (u *userUsecase) Register(username, password string) (*Domain.User, error) 
 		return nil, errors.New("username already exists")
 	}
 	hash, err := u.pw.Hash(password)
-	if err != nil { return nil, err }
-	
+	if err != nil {
+		return nil, err
+	}
+
 	user := &Domain.User{
 		Username:     username,
 		PasswordHash: hash,
@@ -64,9 +66,9 @@ func (u *userUsecase) Login(username, password string) (string, error) {
 	token, err := u.jwt.Generate(user.ID.Hex(), user.Username, user.Role, 24*time.Hour)
 	if err != nil {
 		return "", err
-	}  
+	}
 	return token, nil
-} 
+}
 
 func (u *userUsecase) Promote(username string) error {
 	return u.userRepo.Promote(username)

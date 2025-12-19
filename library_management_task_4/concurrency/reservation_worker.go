@@ -6,9 +6,9 @@ import (
 
 // ReservationRequest is sent to the worker to reserve a book.
 type ReservationRequest struct {
-	BookID  int
+	BookID   int
 	MemberID int
-	Resp    chan error
+	Resp     chan error
 }
 
 // StartReservationWorker starts a goroutine that listens for reservation requests.

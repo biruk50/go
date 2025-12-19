@@ -14,6 +14,7 @@ import (
 )
 
 var print = fmt.Println
+
 func RunLibraryConsole() {
 	library := services.NewLibrary()
 
@@ -43,12 +44,12 @@ func RunLibraryConsole() {
 
 		fmt.Print("Enter choice: ")
 		input, _ := reader.ReadString('\n')
-		choice,_:= strconv.Atoi(strings.TrimSpace(input))
+		choice, _ := strconv.Atoi(strings.TrimSpace(input))
 
 		switch choice {
 		case 1:
 
-			id:=len(library.Books)+1
+			id := len(library.Books) + 1
 			fmt.Print("Enter Title: ")
 			title, _ := reader.ReadString('\n')
 			fmt.Print("Enter Author: ")
@@ -122,10 +123,12 @@ func RunLibraryConsole() {
 			resp := make(chan error)
 			requestCh <- concurrency.ReservationRequest{BookID: bookId, MemberID: memberId, Resp: resp}
 			err := <-resp
-			if err != nil { print("Reserve Error:", err) } else {
+			if err != nil {
+				print("Reserve Error:", err)
+			} else {
 				print("Reserved successfully (async borrow will be attempted).")
 			}
-			
+
 		case 8:
 			// Simulate multiple members trying to reserve the same book concurrently
 			fmt.Print("Enter Book Id to simulate concurrent reservations: ")
@@ -138,8 +141,10 @@ func RunLibraryConsole() {
 			respChans := make([]chan error, 0, len(parts))
 			for _, p := range parts {
 				p = strings.TrimSpace(p)
-				if p == "" { continue }
-				
+				if p == "" {
+					continue
+				}
+
 				memberId, err := strconv.Atoi(p)
 				if err != nil {
 					fmt.Printf("invalid member id: %s\n", p)

@@ -2,10 +2,10 @@ package Usecases
 
 import (
 	"errors"
-	"time"
 	"task_manager_testify/Domain"
-	"task_manager_testify/Repositories"
 	"task_manager_testify/Infrastructure"
+	"task_manager_testify/Repositories"
+	"time"
 )
 
 type UserUsecase interface {
@@ -33,8 +33,10 @@ func (u *userUsecase) Register(username, password string) (*Domain.User, error) 
 		return nil, errors.New("username already exists")
 	}
 	hash, err := u.pw.Hash(password)
-	if err != nil { return nil, err }
-	
+	if err != nil {
+		return nil, err
+	}
+
 	user := &Domain.User{
 		Username:     username,
 		PasswordHash: hash,

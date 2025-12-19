@@ -10,7 +10,7 @@ type MockTaskRepository struct {
 }
 
 func (m *MockTaskRepository) Create(t *Domain.Task) error {
-	args := m.Called(t) 
+	args := m.Called(t)
 	return args.Error(0)
 }
 

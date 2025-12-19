@@ -3,8 +3,8 @@ package infrastructure
 import (
 	"testing"
 
-	"task_manager_testify/Infrastructure"
 	"github.com/stretchr/testify/assert"
+	"task_manager_testify/Infrastructure"
 )
 
 func TestPasswordHashAndCompare(t *testing.T) {

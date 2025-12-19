@@ -25,7 +25,7 @@ type Library struct {
 	rwmu          sync.RWMutex
 	Books         map[int]models.Book
 	Members       map[int]models.Member
-	reservations  map[int]int        // bookID -> memberID (reserved)
+	reservations  map[int]int // bookID -> memberID (reserved)
 	reserveTimers map[int]*time.Timer
 }
 
@@ -66,10 +66,14 @@ func (l *Library) BorrowBook(bookID int, memberID int) error {
 	defer l.mu.Unlock()
 
 	book, ok := l.Books[bookID]
-	if !ok { return errors.New("book not found") }
+	if !ok {
+		return errors.New("book not found")
+	}
 
 	member, ok := l.Members[memberID]
-	if !ok { return errors.New("member not found") }
+	if !ok {
+		return errors.New("member not found")
+	}
 
 	if book.Status == "Borrowed" {
 		return errors.New("book already borrowed")
@@ -103,10 +107,14 @@ func (l *Library) ReturnBook(bookID int, memberID int) error {
 	defer l.mu.Unlock()
 
 	member, ok := l.Members[memberID]
-	if !ok { return errors.New("member not found") }
+	if !ok {
+		return errors.New("member not found")
+	}
 
 	book, ok := l.Books[bookID]
-	if !ok { return errors.New("book not found") }
+	if !ok {
+		return errors.New("book not found")
+	}
 
 	if book.Status == "Available" {
 		return errors.New("book already returned (available)")
@@ -122,7 +130,9 @@ func (l *Library) ReturnBook(bookID int, memberID int) error {
 		}
 		newBorrowed = append(newBorrowed, b)
 	}
-	if !found { return errors.New("book not borrowed by this member") }
+	if !found {
+		return errors.New("book not borrowed by this member")
+	}
 
 	member.BorrowedBooks = newBorrowed
 	l.Members[memberID] = member
@@ -223,4 +233,3 @@ func (l *Library) ReserveBook(bookID int, memberID int) error {
 
 	return nil
 }
-

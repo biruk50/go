@@ -27,7 +27,7 @@ func AuthMiddleware(jwtSrv JWTService) gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token", "detail": err.Error()})
 			return
 		}
-		// expected claims: username, role, sub
+		// expected claims: username, role, sub, department
 		if uname, ok := claims["username"].(string); ok {
 			c.Set("username", uname)
 		}
@@ -37,23 +37,30 @@ func AuthMiddleware(jwtSrv JWTService) gin.HandlerFunc {
 		if sub, ok := claims["sub"].(string); ok {
 			c.Set("user_id", sub)
 		}
+		if dept, ok := claims["department"].(string); ok {
+			c.Set("department", dept)
+		}
 		c.Next()
 	}
 }
 
-// Financial middleware
+// Financial middleware - allows either Finance role OR department == "finance"
 func FinanceOnly() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		rv, ok := c.Get("role")
-		if !ok {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "role missing"})
-			return
+		// allow when role == "finance"
+		if rv, ok := c.Get("role"); ok {
+			if role, ok2 := rv.(string); ok2 && strings.ToLower(role) == "finance" {
+				c.Next()
+				return
+			}
 		}
-		role, ok := rv.(string)
-		if !ok || role != "finance" {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "finance role required"})
-			return
+		// allow when department == "finance"
+		if dv, ok := c.Get("department"); ok {
+			if dept, ok2 := dv.(string); ok2 && strings.ToLower(dept) == "finance" {
+				c.Next()
+				return
+			}
 		}
-		c.Next()
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "finance role or department required"})
 	}
 }

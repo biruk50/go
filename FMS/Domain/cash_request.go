@@ -1,8 +1,9 @@
 package Domain
 
-import(
+import (
 	"time"
-    "go.mongodb.org/mongo-driver/bson/primitive"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type CashRequest struct {

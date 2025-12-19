@@ -1,7 +1,7 @@
 package models
 
 type Member struct {
-	Id int 
-	Name string 
+	Id            int
+	Name          string
 	BorrowedBooks []Book
 }

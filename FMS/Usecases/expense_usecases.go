@@ -11,6 +11,7 @@ type ExpenseUsecase interface {
 	CreateExpense(input *Domain.Expense) (*Domain.Expense, error)
 	GetAllExpenses() ([]Domain.Expense, error)
 	GetExpenseByID(id string) (*Domain.Expense, error)
+	AttachReceipt(id, receiptURL string) error
 	VerifyExpense(id string) error
 }
 
@@ -43,6 +44,15 @@ func (u *expenseUsecase) GetAllExpenses() ([]Domain.Expense, error) {
 
 func (u *expenseUsecase) GetExpenseByID(id string) (*Domain.Expense, error) {
 	return u.repo.GetByID(id)
+}
+
+func (u *expenseUsecase) AttachReceipt(id, receiptURL string) error {
+	e, err := u.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+	e.ReceiptURL = receiptURL
+	return u.repo.Update(id, e)
 }
 
 func (u *expenseUsecase) VerifyExpense(id string) error {

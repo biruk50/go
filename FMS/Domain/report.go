@@ -1,8 +1,8 @@
 package Domain
 
-import(
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
-    "go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Report struct {
@@ -12,4 +12,3 @@ type Report struct {
 	DueDate     time.Time          `bson:"due_date,omitempty" json:"due_date"`
 	Status      string             `bson:"status,omitempty" json:"status"`
 }
-

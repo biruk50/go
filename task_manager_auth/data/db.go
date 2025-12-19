@@ -25,7 +25,9 @@ func InitMongo() error {
 	_ = godotenv.Load()
 
 	mongoURI := os.Getenv("MONGODB_URL")
-	if mongoURI == "" { return errors.New("MONGODB_URL not set")}
+	if mongoURI == "" {
+		return errors.New("MONGODB_URL not set")
+	}
 
 	JWTSecretKey = os.Getenv("JWT_SECRET")
 
@@ -35,8 +37,9 @@ func InitMongo() error {
 	defer cancel()
 
 	Client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
-	if err != nil { return err }
-
+	if err != nil {
+		return err
+	}
 
 	DB = Client.Database(dbName)
 	UsersColl = DB.Collection(getEnv("MONGO_USERS_COLLECTION", "users"))
@@ -47,7 +50,9 @@ func InitMongo() error {
 
 // CloseMongo closes the MongoDB client connection
 func CloseMongo() {
-	if Client == nil { return }
+	if Client == nil {
+		return
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

@@ -10,8 +10,7 @@ import (
 	"strings"
 )
 
-var print= fmt.Println
-
+var print = fmt.Println
 
 func StartConsole(library *services.Library) {
 	reader := bufio.NewReader(os.Stdin)

@@ -13,90 +13,90 @@ func SetupRouter(userUC Usecases.UserUsecase, budgetUC Usecases.BudgetUsecase, c
 
 	jwtSvc := Infrastructure.NewJWTService()
 
-	ctr := controllers.NewController(userUC, budgetUC, cashRequestUC, expenseUC, reportUC, jwtSvc)
+	userCtr := controllers.NewUserController(userUC, jwtSvc)
+	budgetCtr := controllers.NewBudgetController(budgetUC)
+	cashRequestCtr := controllers.NewCashRequestController(cashRequestUC)
+	expenseCtr := controllers.NewExpenseController(expenseUC)
+	reportCtr := controllers.NewReportController(reportUC)
+
 
 	// public
-	r.POST("/register", ctr.Register)
-	r.POST("/login", ctr.Login)
-	r.GET("/", ctr.Home)
+	r.POST("/register", userCtr.Register)
+	r.POST("/login", userCtr.Login)
+	r.GET("/", userCtr.Home)
 
 	user := r.Group("/users")
 	user.Use(Infrastructure.AuthMiddleware(jwtSvc))
-	{	
-		user.GET("/", ctr.GetAllUsers)
-		user.GET("/me", ctr.GetMyProfile)
+	{
+		user.GET("/", userCtr.GetAllUsers)
+		user.GET("/me", userCtr.GetMyProfile)
 	}
 
 	user.Use(Infrastructure.AuthMiddleware(jwtSvc), Infrastructure.FinanceOnly())
-	{	
-		user.PUT("/:id/role", ctr.UpdateUser)
+	{
+		user.PUT("/:id/role", userCtr.UpdateUser)
 	}
-	
-	
+
 	// protected
 	budget := r.Group("/budgets")
 	budget.Use(Infrastructure.AuthMiddleware(jwtSvc))
-	{	
+	{
 
-		budget.GET("/", ctr.GetAllBudgets)
-		budget.GET("/:id", ctr.GetBudgetByID)
-		budget.GET("/:id/summary", ctr.GetBudgetSummary)
+		budget.GET("/", budgetCtr.GetAllBudgets)
+		budget.GET("/:id", budgetCtr.GetBudgetByID)
+		budget.GET("/:id/summary", budgetCtr.GetBudgetSummary)
 
-		budget.PUT("/:id", ctr.UpdateBudget)
-
-		budget.POST("/", ctr.CreateBudget)	
+		budget.PUT("/:id", budgetCtr.UpdateBudget)
+		budget.POST("/", budgetCtr.CreateBudget)
 	}
 
 	budget.Use(Infrastructure.AuthMiddleware(jwtSvc), Infrastructure.FinanceOnly())
-	{	
-
-		budget.PUT("/:id", ctr.UpdateBudget)
-
-		budget.POST("/:id/approve", ctr.ApproveBudget)
-		budget.POST("/:id/reject", ctr.RejectBudget)
-		
+	{
+		budget.POST("/:id/approve", budgetCtr.ApproveBudget)
+		budget.POST("/:id/reject", budgetCtr.RejectBudget)
 	}
-
-
 
 	cashRequest := r.Group("/cash-requests")
 	cashRequest.Use(Infrastructure.AuthMiddleware(jwtSvc))
-	{	
+	{
 
-		cashRequest.GET("/", ctr.GetAllCashRequests)
-		cashRequest.GET("/:id", ctr.GetCashRequest)
+		cashRequest.GET("/", cashRequestCtr.GetAllCashRequests)
+		cashRequest.GET("/:id", cashRequestCtr.GetCashRequest)
 
-		cashRequest.POST("/", ctr.CreateCashRequest)
+		cashRequest.POST("/", cashRequestCtr.CreateCashRequest)
 	}
 
 	cashRequest.Use(Infrastructure.AuthMiddleware(jwtSvc), Infrastructure.FinanceOnly())
-	{	
-		cashRequest.POST("/:id/approve", ctr.ApproveCashRequest)
-		cashRequest.POST("/:id/reject", ctr.RejectCashRequest)
-		cashRequest.POST("/:id/disburse", ctr.DisburseCashRequest)
+	{
+		cashRequest.POST("/:id/approve", cashRequestCtr.ApproveCashRequest)
+		cashRequest.POST("/:id/reject", cashRequestCtr.RejectCashRequest)
+		cashRequest.POST("/:id/disburse", cashRequestCtr.DisburseCashRequest)
 	}
 
 	expense := r.Group("/expenses")
 	expense.Use(Infrastructure.AuthMiddleware(jwtSvc))
-	{	
+	{
 
-		expense.GET("/", ctr.GetAllExpenses)
-		expense.GET("/:id", ctr.GetExpense)
-		expense.GET("/:id/summary", ctr.GetExpenseSummary)
+		expense.GET("/", expenseCtr.GetAllExpenses)
+		expense.GET("/:id", expenseCtr.GetExpense)
+		expense.GET("/:id/summary", expenseCtr.GetExpenseSummary)
 
-		expense.POST("/", ctr.CreateExpense)
-		expense.POST("/:id/receipts", ctr.CreateExpenseReceipt)
+		expense.POST("/", expenseCtr.CreateExpense)
+		expense.POST("/:id/receipts", expenseCtr.CreateExpenseReceipt)
+	}
 
-		expense.PUT("/:id/verify", ctr.VerifyExpense)
+	expense.Use(Infrastructure.AuthMiddleware(jwtSvc), Infrastructure.FinanceOnly())
+	{
+		expense.PUT("/:id/verify", expenseCtr.VerifyExpense)
 	}
 
 	report := r.Group("/reports")
-	report.Use(Infrastructure.AuthMiddleware(jwtSvc))
-	{	
-		report.GET("/overview", ctr.GetOverviewReport)
-		report.GET("/cash-requests", ctr.GetCashRequestReport)
-		report.GET("/budgets", ctr.GetBudgetReport)
-		report.GET("/expenses", ctr.GetExpenseReport)
+	report.Use(Infrastructure.AuthMiddleware(jwtSvc), Infrastructure.FinanceOnly())
+	{
+		report.GET("/overview", reportCtr.GetOverviewReport)
+		report.GET("/cash-requests", reportCtr.GetCashRequestReport)
+		report.GET("/budgets", reportCtr.GetBudgetReport)
+		report.GET("/expenses", reportCtr.GetExpenseReport)
 	}
 
 	return r

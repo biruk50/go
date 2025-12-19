@@ -17,12 +17,10 @@ import (
 )
 
 var (
-  collection *mongo.Collection
-  client *mongo.Client
-  ctx=context.Background()
+	collection *mongo.Collection
+	client     *mongo.Client
+	ctx        = context.Background()
 )
-
-
 
 func InitMongo() error {
 	if err := godotenv.Load(); err != nil {
@@ -30,20 +28,26 @@ func InitMongo() error {
 	}
 
 	uri := os.Getenv("MONGODB_URL")
-	
+
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	collection = client.Database("task_manager").Collection("tasks")
-	if collection == nil { return errors.New("failed to connect to collection") }
+	if collection == nil {
+		return errors.New("failed to connect to collection")
+	}
 	return nil
 
 }
 
-func CloseMongo(){
-	if client == nil { return  }
-	client.Disconnect(ctx) 
+func CloseMongo() {
+	if client == nil {
+		return
+	}
+	client.Disconnect(ctx)
 }
 
 // GetAllTasks returns all tasks.
@@ -51,8 +55,10 @@ func GetAllTasks() ([]models.Task, error) {
 	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
 	defer cancel()
 
-	cursor,err := collection.Find(ctx, bson.D{})
-	if err != nil { return nil, err }
+	cursor, err := collection.Find(ctx, bson.D{})
+	if err != nil {
+		return nil, err
+	}
 
 	var tasks []models.Task
 	if err := cursor.All(ctx, &tasks); err != nil {
@@ -71,7 +77,6 @@ func GetTaskByID(id string) (*models.Task, error) {
 	if err != nil {
 		return nil, errors.New("invalid ID format")
 	}
-
 
 	var task models.Task
 
@@ -133,12 +138,12 @@ func DeleteTask(id string) error {
 	defer cancel()
 
 	res, err := collection.DeleteOne(ctx, bson.M{"_id": objID})
-	
-	if err != nil { 
+
+	if err != nil {
 		log.Printf("Error deleting task: %v", err)
-		return err}
+		return err
+	}
 	log.Printf("Delete result: %+v", res)
-	
 
 	return nil
 }

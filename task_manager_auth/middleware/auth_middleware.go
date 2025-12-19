@@ -47,14 +47,14 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token claims"})
 			return
 		}
-		
+
 		// store claims in context
 		c.Set("user_id", claims.UserID)
 		c.Set("username", claims.Username)
 		c.Set("role", claims.Role)
 		c.Next()
 	}
-} 
+}
 
 func AdminOnly() gin.HandlerFunc {
 	return func(c *gin.Context) {

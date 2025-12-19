@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-
 )
 
 // Home route.
@@ -18,12 +17,12 @@ func Home(ctx *gin.Context) {
 
 // Get all tasks.
 func GetAllTasks(ctx *gin.Context) {
-	tasks,err := data.GetAllTasks()
+	tasks, err := data.GetAllTasks()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"tasks": tasks })
+	ctx.JSON(http.StatusOK, gin.H{"tasks": tasks})
 }
 
 // Get task by ID.

@@ -3,9 +3,9 @@ package data
 import (
 	"context"
 	"errors"
+	"log"
 	"task_manager_auth/models"
 	"time"
-	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	ctx=context.Background()
+	ctx = context.Background()
 )
 
 // GetAllTasks returns all tasks.
@@ -21,8 +21,10 @@ func GetAllTasks() ([]models.Task, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	cursor,err := TasksColl.Find(ctx, bson.D{})
-	if err != nil { return nil, err }
+	cursor, err := TasksColl.Find(ctx, bson.D{})
+	if err != nil {
+		return nil, err
+	}
 
 	var tasks []models.Task
 	if err := cursor.All(ctx, &tasks); err != nil {
@@ -38,8 +40,9 @@ func GetTaskByID(id string) (*models.Task, error) {
 	defer cancel()
 
 	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {return nil, errors.New("invalid ID format")}
-
+	if err != nil {
+		return nil, errors.New("invalid ID format")
+	}
 
 	var task models.Task
 
@@ -48,7 +51,9 @@ func GetTaskByID(id string) (*models.Task, error) {
 	if err == mongo.ErrNoDocuments {
 		return nil, errors.New("task not found")
 	}
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 
 	return &task, nil
 }
@@ -63,7 +68,9 @@ func AddTask(task models.Task) error {
 
 func UpdateTask(id string, updated models.Task) error {
 	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil { return errors.New("invalid ID format") }
+	if err != nil {
+		return errors.New("invalid ID format")
+	}
 
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -78,7 +85,9 @@ func UpdateTask(id string, updated models.Task) error {
 	}
 
 	res, err := TasksColl.UpdateOne(ctx, bson.M{"_id": objID}, update)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	if res.MatchedCount == 0 {
 		return errors.New("task not found")
@@ -89,14 +98,18 @@ func UpdateTask(id string, updated models.Task) error {
 // DeleteTask removes a task by its ID.
 func DeleteTask(id string) error {
 	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil { return errors.New("invalid ID format") }
+	if err != nil {
+		return errors.New("invalid ID format")
+	}
 
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
 	res, err := TasksColl.DeleteOne(ctx, bson.M{"_id": objID})
-	
-	if err != nil { return err }
+
+	if err != nil {
+		return err
+	}
 
 	log.Printf("Delete result: %+v", res)
 	return nil

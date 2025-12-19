@@ -19,7 +19,6 @@ func main() {
 	userRepo := Repositories.NewMongoUserRepository(Infrastructure.GetDB())
 	taskRepo := Repositories.NewMongoTaskRepository(Infrastructure.GetDB())
 
-
 	userUC := Usecases.NewUserUsecase(userRepo, Infrastructure.NewPasswordService(), Infrastructure.NewJWTService())
 	taskUC := Usecases.NewTaskUsecase(taskRepo)
 

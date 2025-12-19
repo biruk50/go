@@ -1,11 +1,11 @@
 package infrastructure
 
 import (
+	"github.com/stretchr/testify/assert"
+	"task_manager_testify/Infrastructure"
 	"testing"
 	"time"
-	"task_manager_testify/Infrastructure"
-	"github.com/stretchr/testify/assert"
-) 
+)
 
 func TestJWTGenerateAndValidate(t *testing.T) {
 	secret := "test-secret-123"

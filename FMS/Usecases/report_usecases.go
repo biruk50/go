@@ -1,61 +1,48 @@
 package Usecases
 
 import (
-	"errors"
-	"time"
-
-	"task_manager_clean/Domain"
-	"task_manager_clean/Repositories"
+	"FMS/Domain"
+	"FMS/Repositories"
 )
 
-type TaskUsecase interface {
-	CreateTask(input *Domain.Task) (*Domain.Task, error)
-	GetTasks() ([]Domain.Task, error)
-	GetTaskByID(id string) (*Domain.Task, error)
-	UpdateTask(id string, input *Domain.Task) error
-	DeleteTask(id string) error
+type ReportUsecase interface {
+	GetOverview() (map[string]interface{}, error)
+	GetBudgetReport() ([]Domain.Budget, error)
+	GetCashRequestReport() ([]Domain.CashRequest, error)
+	GetExpenseReport() ([]Domain.Expense, error)
 }
 
-type taskUsecase struct {
-	taskRepo Repositories.TaskRepository
+type reportUsecase struct {
+	budgetRepo      Repositories.BudgetRepository
+	cashRequestRepo Repositories.CashRequestRepository
+	expenseRepo     Repositories.ExpenseRepository
 }
 
-func NewTaskUsecase(repo Repositories.TaskRepository) TaskUsecase {
-	return &taskUsecase{taskRepo: repo}
+func NewReportUsecase(b Repositories.BudgetRepository, c Repositories.CashRequestRepository, e Repositories.ExpenseRepository) ReportUsecase {
+	return &reportUsecase{budgetRepo: b, cashRequestRepo: c, expenseRepo: e}
 }
 
-func (u *taskUsecase) CreateTask(input *Domain.Task) (*Domain.Task, error) {
-	if input.Title == "" {
-		return nil, errors.New("title is required")
+func (u *reportUsecase) GetOverview() (map[string]interface{}, error) {
+	budgets, _ := u.budgetRepo.GetAll()
+	cashReqs, _ := u.cashRequestRepo.GetAll()
+	expenses, _ := u.expenseRepo.GetAll()
+
+	overview := map[string]interface{}{
+		"budgets_count":       len(budgets),
+		"cash_requests_count": len(cashReqs),
+		"expenses_count":      len(expenses),
 	}
-
-	if input.DueDate.IsZero() {
-		input.DueDate = time.Now().Add(24 * time.Hour)
-	}
-
-	if err := u.taskRepo.Create(input); err != nil {
-		return nil, err
-	}
-
-	return input, nil
+	return overview, nil
 }
 
-func (u *taskUsecase) GetTasks() ([]Domain.Task, error) {
-	return u.taskRepo.GetAll()
+func (u *reportUsecase) GetBudgetReport() ([]Domain.Budget, error) {
+	return u.budgetRepo.GetAll()
 }
 
-func (u *taskUsecase) GetTaskByID(id string) (*Domain.Task, error) {
-	return u.taskRepo.GetByID(id)
+func (u *reportUsecase) GetCashRequestReport() ([]Domain.CashRequest, error) {
+	return u.cashRequestRepo.GetAll()
 }
 
-func (u *taskUsecase) UpdateTask(id string, input *Domain.Task) error {
-	if input.Title == "" {
-		return errors.New("title is required")
-	}
-	return u.taskRepo.Update(id, input)
+func (u *reportUsecase) GetExpenseReport() ([]Domain.Expense, error) {
+	return u.expenseRepo.GetAll()
 }
-
-func (u *taskUsecase) DeleteTask(id string) error {
-	return u.taskRepo.Delete(id)
-}
-

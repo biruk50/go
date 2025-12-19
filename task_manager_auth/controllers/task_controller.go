@@ -1,17 +1,16 @@
- package controllers
+package controllers
 
 import (
 	"net/http"
 	"task_manager_auth/data"
-	"task_manager_auth/models"
 	"task_manager_auth/middleware"
+	"task_manager_auth/models"
 
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-
 )
 
 // Register request payload
@@ -54,7 +53,7 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		return
 	}
-	
+
 	// create token
 	secret := data.GetJWTSecret()
 	claims := middleware.Claims{
@@ -78,7 +77,9 @@ func Login(c *gin.Context) {
 
 // Promote endpoint (admin-only). Request body expects {"username":"otheruser"}
 func Promote(c *gin.Context) {
-	var payload struct{ Username string `json:"username"` }
+	var payload struct {
+		Username string `json:"username"`
+	}
 	if err := c.ShouldBindJSON(&payload); err != nil || payload.Username == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "username required"})
 		return
@@ -90,7 +91,6 @@ func Promote(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "user promoted"})
 }
 
-
 // Home route.
 func Home(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Welcome to the Task Manager API"})
@@ -98,12 +98,12 @@ func Home(ctx *gin.Context) {
 
 // Get all tasks.
 func GetAllTasks(ctx *gin.Context) {
-	tasks,err := data.GetAllTasks()
+	tasks, err := data.GetAllTasks()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"tasks": tasks })
+	ctx.JSON(http.StatusOK, gin.H{"tasks": tasks})
 }
 
 // Get task by ID.

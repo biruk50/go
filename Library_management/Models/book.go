@@ -1,8 +1,8 @@
 package models
 
 type Book struct {
-	Id int 
-	Title string 
-	Author string 
-	Status string//available or borrowed
+	Id     int
+	Title  string
+	Author string
+	Status string //available or borrowed
 }

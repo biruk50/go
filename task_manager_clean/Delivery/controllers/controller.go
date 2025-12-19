@@ -3,8 +3,8 @@ package controllers
 import (
 	"net/http"
 	"task_manager_clean/Domain"
-	"task_manager_clean/Usecases"
 	"task_manager_clean/Infrastructure"
+	"task_manager_clean/Usecases"
 
 	"github.com/gin-gonic/gin"
 )
@@ -41,7 +41,6 @@ func (ctr *Controller) Register(c *gin.Context) {
 	}
 	c.JSON(http.StatusCreated, gin.H{"username": user.Username, "role": user.Role, "created_at": user.CreatedAt})
 }
-
 
 func (ctr *Controller) Login(c *gin.Context) {
 	var payload struct {
@@ -137,4 +136,3 @@ func (ctr *Controller) DeleteTask(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "deleted"})
 }
-

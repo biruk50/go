@@ -1,140 +1,79 @@
 package controllers
 
 import (
-	"net/http"
 	"FMS/Domain"
 	"FMS/Usecases"
-	"FMS/Infrastructure"
+	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-// Controllers depend only on usecases (interfaces)
-type Controller struct {
-	UserUC Usecases.UserUsecase
-	TaskUC Usecases.TaskUsecase
-	JWT    Infrastructure.JWTService
+type CashRequestController struct {
+	CashRequestUC Usecases.CashRequestUsecase
 }
 
-// NewController factory - note: we pass JWT service for middleware token examples
-func NewController(u Usecases.UserUsecase, t Usecases.TaskUsecase, jwtSvc Infrastructure.JWTService) *Controller {
-	return &Controller{UserUC: u, TaskUC: t, JWT: jwtSvc}
+func NewCashRequestController(c Usecases.CashRequestUsecase) *CashRequestController {
+	return &CashRequestController{CashRequestUC: c}
 }
 
-func (ctr *Controller) Home(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "Welcome to the Task Manager API"})
-}
-
-func (ctr *Controller) Register(c *gin.Context) {
-	var payload struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
-	if err := c.ShouldBindJSON(&payload); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	user, err := ctr.UserUC.Register(payload.Username, payload.Password)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusCreated, gin.H{"username": user.Username, "role": user.Role, "created_at": user.CreatedAt})
-}
-
-
-func (ctr *Controller) Login(c *gin.Context) {
-	var payload struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
-	if err := c.ShouldBindJSON(&payload); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	token, err := ctr.UserUC.Login(payload.Username, payload.Password)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"token": token, "expires_in": 24 * 3600})
-}
-
-// Promote (admin)
-func (ctr *Controller) Promote(c *gin.Context) {
-	var payload struct {
-		Username string `json:"username"`
-	}
-	if err := c.ShouldBindJSON(&payload); err != nil || payload.Username == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "username required"})
-		return
-	}
-	if err := ctr.UserUC.Promote(payload.Username); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "promoted"})
-}
-
-// Tasks handlers
-func (ctr *Controller) GetAllTasks(c *gin.Context) {
-	tasks, err := ctr.TaskUC.GetTasks()
+func (cc *CashRequestController) GetAllCashRequests(c *gin.Context) {
+	list, err := cc.CashRequestUC.GetAllCashRequests()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"tasks": tasks})
+	c.JSON(http.StatusOK, gin.H{"cash_requests": list})
 }
 
-func (ctr *Controller) GetTask(c *gin.Context) {
+func (cc *CashRequestController) GetCashRequest(c *gin.Context) {
 	id := c.Param("id")
-	t, err := ctr.TaskUC.GetTaskByID(id)
+	r, err := cc.CashRequestUC.GetCashRequestByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"task": t})
+	c.JSON(http.StatusOK, gin.H{"cash_request": r})
 }
 
-func (ctr *Controller) CreateTask(c *gin.Context) {
-	var payload Domain.Task
+func (cc *CashRequestController) CreateCashRequest(c *gin.Context) {
+	var payload Domain.CashRequest
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	payload.DueDate = payload.DueDate.UTC()
-	created, err := ctr.TaskUC.CreateTask(&payload)
+	payload.CreatedAt = time.Now().UTC()
+	created, err := cc.CashRequestUC.CreateCashRequest(&payload)
 	if err != nil {
-		if _, ok := err.(interface{ Error() string }); ok {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"task": created})
+	c.JSON(http.StatusCreated, gin.H{"cash_request": created})
 }
 
-func (ctr *Controller) UpdateTask(c *gin.Context) {
+func (cc *CashRequestController) ApproveCashRequest(c *gin.Context) {
 	id := c.Param("id")
-	var payload Domain.Task
-	if err := c.ShouldBindJSON(&payload); err != nil {
+	if err := cc.CashRequestUC.ApproveCashRequest(id); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := ctr.TaskUC.UpdateTask(id, &payload); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "updated"})
+	c.JSON(http.StatusOK, gin.H{"message": "approved"})
 }
 
-func (ctr *Controller) DeleteTask(c *gin.Context) {
+func (cc *CashRequestController) RejectCashRequest(c *gin.Context) {
 	id := c.Param("id")
-	if err := ctr.TaskUC.DeleteTask(id); err != nil {
+	if err := cc.CashRequestUC.RejectCashRequest(id); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "deleted"})
+	c.JSON(http.StatusOK, gin.H{"message": "rejected"})
 }
 
+func (cc *CashRequestController) DisburseCashRequest(c *gin.Context) {
+	id := c.Param("id")
+	if err := cc.CashRequestUC.DisburseCashRequest(id); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "disbursed"})
+}

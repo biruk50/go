@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"task_manager_testify/Domain"
-	"task_manager_testify/Repositories"
 	"task_manager_testify/Infrastructure"
+	"task_manager_testify/Repositories"
 
 	"github.com/stretchr/testify/assert"
 )
